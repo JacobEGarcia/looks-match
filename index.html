@@ -1,29 +1,43 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><title>LooksMatch - Style Showdown</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LooksMatch</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕶️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,600;0,800;1,500&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-body{margin:0;min-height:100vh;background:#101014;color:#e8e4f0;font-family:ui-monospace,Menlo,monospace;display:flex;flex-direction:column;align-items:center;padding:24px 12px}
-h1{letter-spacing:.35em;font-size:22px;margin:0;color:#ff9ecb}
-.tag{color:#6d6a80;letter-spacing:.22em;font-size:11px;margin:8px 0 14px}
-.hud{color:#6d6a80;font-size:12px;letter-spacing:.1em;margin:6px 0 14px}
-.hud b{color:#ff9ecb}
-.vs{display:flex;gap:22px;align-items:flex-end}
-.p{background:#17171f;border:1px solid #2e2e40;border-radius:12px;padding:16px 14px 10px;width:150px;text-align:center;cursor:pointer;transition:transform .15s}
-.p:hover{transform:translateY(-4px);border-color:#ff9ecb}
-.face{font-size:52px;line-height:1}
-.fit{font-size:26px;margin-top:6px}
-.nm{color:#cfc8e0;font-size:12px;margin-top:8px}
-.st{color:#6d6a80;font-size:10px;letter-spacing:.12em;margin-top:3px}
-.vsm{color:#ff9ecb;font-size:13px;letter-spacing:.3em;margin:0 0 10px}
-button{background:#1b1b26;border:1px solid #3a3a52;color:#ffc2dd;border-radius:8px;padding:9px 18px;font-family:inherit;letter-spacing:.15em;font-size:12px;cursor:pointer;margin-top:14px}
-button:hover{background:#ff9ecb;color:#101014}
-.board{width:340px;margin-top:16px;font-size:11px;color:#9a94b5;line-height:1.9}
-.board b{color:#ff9ecb}
-.win{color:#7dffa8;font-size:11px;letter-spacing:.15em;margin-top:8px;min-height:14px}
-</style></head><body>
-<h1>LOOKSMATCH</h1><div class="tag">FICTIONAL FITS ONLY · VOTE THE BETTER LOOK</div>
-<div class="hud">VOTES CAST <b id="sV">0</b></div>
+:root{--bg:#f7f5f2;--ink:#111111;--dim:#8b8680;--line:#e2ded6;--card:#ffffff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:48px 18px 64px}
+h1{font-family:'Bodoni Moda',serif;font-size:38px;font-weight:800;letter-spacing:.06em}
+.tag{font-size:10px;letter-spacing:.3em;color:var(--dim);text-transform:uppercase;margin:10px 0 0}
+.hud{margin:20px 0 6px;font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:var(--dim)}
+.hud b{color:var(--ink);margin:0 3px}
+.vs{display:flex;gap:12px;align-items:stretch;justify-content:center;width:min(620px,94vw);margin-top:16px}
+.vs .fit{flex:1;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:26px 18px;text-align:center;cursor:pointer;transition:all .15s}
+.vs .fit:hover{border-color:var(--ink);transform:translateY(-3px);box-shadow:0 10px 24px rgba(17,17,17,.1)}
+.vs .face{font-size:52px}
+.vs .nm{font-family:'Bodoni Moda',serif;font-size:19px;font-weight:600;margin-top:10px}
+.vs .p{font-style:italic;font-family:'Bodoni Moda',serif;color:var(--dim);font-size:14px;margin-top:6px;line-height:1.5}
+.vs .st{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-top:12px}
+.vs .vsm{align-self:center;font-family:'Bodoni Moda',serif;font-style:italic;font-size:22px;color:var(--dim)}
+body>button{margin-top:20px;padding:13px 30px;border:none;background:var(--ink);color:#fff;font-family:inherit;font-size:11.5px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;transition:background .15s}
+body>button:hover{background:#333}
+.win{margin-top:18px;font-family:'Bodoni Moda',serif;font-style:italic;font-size:17px;color:var(--ink)}
+.win:empty{display:none}
+.board{width:min(620px,94vw);margin-top:20px;border-top:1px solid var(--ink);padding-top:14px;font-size:12.5px;line-height:2.1;color:var(--dim)}
+.board:empty{display:none}
+.board b{color:var(--ink)}
+</style>
+</head>
+<body>
+<h1>LOOKSMATCH</h1><div class="tag">fictional fits only &middot; vote the better look</div>
+<div class="hud">Votes cast <b id="sV">0</b></div>
 <div class="vs" id="vs"></div>
-<button onclick="round()">NEXT MATCHUP</button>
+<button onclick="round()">Next matchup</button>
 <div class="win" id="win"></div>
 <div class="board" id="board"></div>
 <script>
@@ -48,4 +62,6 @@ function stats(){document.getElementById('sV').textContent=D.votes;}
 function board(){const top=Object.entries(D.elo).sort((x,y)=>y[1]-x[1]).slice(0,5);
 document.getElementById('board').innerHTML=top.length?'<b>LEADERBOARD:</b><br>'+top.map(([i,e],k)=>`${k+1}. ${NAMES[i]} - ${Math.round(e)}`).join('<br>'):'';}
 stats();board();round();
-</script></body></html>
+</script>
+</body>
+</html>
