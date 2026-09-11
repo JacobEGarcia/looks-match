@@ -1,0 +1,51 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>LooksMatch - Style Showdown</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{margin:0;min-height:100vh;background:#101014;color:#e8e4f0;font-family:ui-monospace,Menlo,monospace;display:flex;flex-direction:column;align-items:center;padding:24px 12px}
+h1{letter-spacing:.35em;font-size:22px;margin:0;color:#ff9ecb}
+.tag{color:#6d6a80;letter-spacing:.22em;font-size:11px;margin:8px 0 14px}
+.hud{color:#6d6a80;font-size:12px;letter-spacing:.1em;margin:6px 0 14px}
+.hud b{color:#ff9ecb}
+.vs{display:flex;gap:22px;align-items:flex-end}
+.p{background:#17171f;border:1px solid #2e2e40;border-radius:12px;padding:16px 14px 10px;width:150px;text-align:center;cursor:pointer;transition:transform .15s}
+.p:hover{transform:translateY(-4px);border-color:#ff9ecb}
+.face{font-size:52px;line-height:1}
+.fit{font-size:26px;margin-top:6px}
+.nm{color:#cfc8e0;font-size:12px;margin-top:8px}
+.st{color:#6d6a80;font-size:10px;letter-spacing:.12em;margin-top:3px}
+.vsm{color:#ff9ecb;font-size:13px;letter-spacing:.3em;margin:0 0 10px}
+button{background:#1b1b26;border:1px solid #3a3a52;color:#ffc2dd;border-radius:8px;padding:9px 18px;font-family:inherit;letter-spacing:.15em;font-size:12px;cursor:pointer;margin-top:14px}
+button:hover{background:#ff9ecb;color:#101014}
+.board{width:340px;margin-top:16px;font-size:11px;color:#9a94b5;line-height:1.9}
+.board b{color:#ff9ecb}
+.win{color:#7dffa8;font-size:11px;letter-spacing:.15em;margin-top:8px;min-height:14px}
+</style></head><body>
+<h1>LOOKSMATCH</h1><div class="tag">FICTIONAL FITS ONLY · VOTE THE BETTER LOOK</div>
+<div class="hud">VOTES CAST <b id="sV">0</b></div>
+<div class="vs" id="vs"></div>
+<button onclick="round()">NEXT MATCHUP</button>
+<div class="win" id="win"></div>
+<div class="board" id="board"></div>
+<script>
+const NAMES=['Cassandra VHS','Moon Unit Jr.','Greg','Greg (formal)','DJ Oatmeal','Aunt Static','The Maitre D','Kevin from Accounts','Señor Waffles','Becky Thrift'];
+const FACES=['🧑‍🎤','🧑‍🚀','🦸','🧛','🧑‍🍳','🕵️','🧑‍🎨','👨‍💼','🧙','🤵'];
+const FITS=['🕶️👔','🎩🧥','👑🧣','🧢👕','🥻✨','👗🧤','⛑️🦺','🎀🧥','🧣👢','👓🎽'];
+let D=JSON.parse(localStorage.getItem('looksmatch')||'{"votes":0,"elo":{}}');
+let cur=[];
+function persona(i){return {n:NAMES[i],f:FACES[i],fit:FITS[i],elo:D.elo[i]||1000};}
+function round(){let a=Math.floor(Math.random()*10),b;do{b=Math.floor(Math.random()*10)}while(b===a);
+cur=[a,b];const A=persona(a),B=persona(b);
+document.getElementById('vs').innerHTML=[A,B].map((p,k)=>`<div class="p" onclick="vote(${k})">
+<div class="face">${p.f}</div><div class="fit">${p.fit}</div><div class="nm">${p.n}</div><div class="st">RATING ${Math.round(p.elo)}</div></div>`).join('<div class="vsm">VS</div>');
+document.getElementById('win').textContent='';}
+function vote(k){const a=cur[0],b=cur[1],w=cur[k],l=cur[1-k];
+D.elo[a]=D.elo[a]||1000;D.elo[b]=D.elo[b]||1000;
+const ea=1/(1+Math.pow(10,((D.elo[l]-D.elo[w])/400)));
+D.elo[w]+=Math.round(24*(1-ea));D.elo[l]-=Math.round(24*(1-ea));D.votes++;
+document.getElementById('win').textContent=persona(w).n.toUpperCase()+' TAKES IT';
+localStorage.setItem('looksmatch',JSON.stringify(D));stats();board();}
+function stats(){document.getElementById('sV').textContent=D.votes;}
+function board(){const top=Object.entries(D.elo).sort((x,y)=>y[1]-x[1]).slice(0,5);
+document.getElementById('board').innerHTML=top.length?'<b>LEADERBOARD:</b><br>'+top.map(([i,e],k)=>`${k+1}. ${NAMES[i]} - ${Math.round(e)}`).join('<br>'):'';}
+stats();board();round();
+</script></body></html>
